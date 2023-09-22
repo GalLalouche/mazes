@@ -56,9 +56,9 @@ object Drawing {
 
     // Vertically flip the image since (0,0) in the maze is at the bottom left but in the image
     // it is top left.
-    val tx = AffineTransform.getScaleInstance(1, -1);
-    tx.translate(0, -image.getHeight());
-    g2d.transform(tx);
+    val tx = AffineTransform.getScaleInstance(1, -1)
+    tx.translate(0, -image.getHeight())
+    g2d.transform(tx)
     // Translate to start from frame.
     g2d.translate(borderDistance / 2, borderDistance / 2)
     val max = math.max(grid.values.view.max, 1)

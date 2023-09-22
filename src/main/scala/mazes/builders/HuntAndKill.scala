@@ -7,18 +7,20 @@ import mazes.builders.WalkerSt.{GCell, GridB}
 import mazes.data.Grid
 import mazes.utils.func.RandomUtils
 
-case object HuntAndKill extends MazeGenerator {
-  override def apply[F[_]: Monad: Random](width: Int, height: Int): F[Grid[Unit]] = {
+case object HuntAndKill extends WeavingMazeGeneratorTemplate {
+  override protected def apply[F[_]: Monad: Random](
+      width: Int, height: Int, getNeighbors: GCell => Seq[GCell]
+  ): F[Grid[Unit]] = {
     object Aux extends Walker[F] {
       override protected def template(result: GridB, source: GCell): F[(GCell, GridB)] = {
-        val neighbors: Seq[GCell] = source.neighbors.filterNot(_.value)
+        val neighbors: Seq[GCell] = getNeighbors(source).filterNot(_.value)
         if neighbors.isEmpty
         then // Hunt mode
           val unvisitedWithVisitedNeighbors =
-            result.cells.filter(e => !e.value && e.neighbors.exists(_.value))
+            result.cells.filter(e => !e.value && getNeighbors(e).exists(_.value))
           for
             prey: GCell <- RandomUtils.sampleUnsafe(unvisitedWithVisitedNeighbors)
-            visitedNeighbor <- RandomUtils.sampleUnsafe(prey.neighbors.filter(_.value))
+            visitedNeighbor <- RandomUtils.sampleUnsafe(getNeighbors(prey).filter(_.value))
           yield (prey, link(visitedNeighbor, prey))
         else
           RandomUtils.sampleUnsafe(neighbors).map(nextNeighbor => {

@@ -12,11 +12,13 @@ import mazes.utils.func.RandomUtils
 
 import scala.annotation.experimental
 
-@experimental case object Backtracker extends MazeGenerator {
+@experimental case object Backtracker extends WeavingMazeGeneratorTemplate {
   import language.experimental.namedTypeArguments
 
   private type Path = List[(Int, Int)]
-  override def apply[F[_]: Monad: Random](width: Int, height: Int): F[BasicGrid] = {
+  protected override def apply[F[_]: Monad: Random](
+      width: Int, height: Int, getNeighbors: GCell => Seq[GCell]
+  ): F[BasicGrid] = {
     type State = (GCell, GridB)
     type Ret = StateT[F, Path, State]
     object Aux extends Walker[StateT[F, Path, _]] {
@@ -27,7 +29,7 @@ import scala.annotation.experimental
           stack <- StateT.get[F, Path]
           head :: tail = stack: @unchecked
           cell = result.apply.tupled(head)
-          neighbors = cell.neighbors.filterNot(_.value)
+          neighbors = getNeighbors(cell).filterNot(_.value)
           rec <-
             if neighbors.isEmpty // Pop and try again
             then StateT.set[F, Path](tail) >> go(result)

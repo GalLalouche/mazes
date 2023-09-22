@@ -26,6 +26,7 @@ object BFS:
           go(newQueue.enqueueAll(neighbors), updatedValues)
         case None => result
     }
+    require(grid.applySafe(x, y).isDefined)
     val value = go(Queue(x -> y), grid.as(None)(x, y).set(Some(0)))
     value.map(_.get)
   }
