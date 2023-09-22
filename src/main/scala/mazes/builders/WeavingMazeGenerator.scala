@@ -7,7 +7,7 @@ import mazes.data.Grid.BasicGrid
 
 trait WeavingMazeGenerator extends MazeGenerator {
   def weave[F[_]: Monad: Random](width: Int, height: Int): F[BasicGrid]
-  def asRegularGenerator: MazeGenerator = new MazeGenerator:
+  def weavingGenerator: MazeGenerator = new MazeGenerator:
     override def apply[F[_]: Monad: Random](width: Int, height: Int) = weave(width, height)
-    override val toString = s"${WeavingMazeGenerator.this.toString} (weaving)"
+    override val toString = s"${WeavingMazeGenerator.this.toString}_weaving"
 }

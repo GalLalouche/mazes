@@ -16,9 +16,9 @@ object BFS:
           val value = cell.value.getOrElse(throw new AssertionError(s"No value for $cell"))
           val neighbors =
             for
-              d <- Direction.values
-              if cell.isLinked(d)
-              neighbor <- cell.go(d)
+              d <- Direction.values.toVector
+              if cell.isLinkedOrTunneled(d)
+              neighbor = cell.linkedOrTunneledNeighborUnsafe(d)
               if neighbor.value.isEmpty
             yield neighbor.coordinates
           val updatedValues =

@@ -20,8 +20,11 @@ import scala.annotation.experimental
     BinaryTree,
     Sidewinder,
     RandomWalk,
+    RandomWalk.weavingGenerator,
     HuntAndKill,
+    HuntAndKill.weavingGenerator,
     Backtracker,
+    Backtracker.weavingGenerator,
   )
   generators.foreach(generator => property(s"$generator: Should always be solvable") {
     forAll(MazeGeneratorTest.GenFixture) {case Fixture(width, height, x0, y0, seed) =>
@@ -53,6 +56,6 @@ object MazeGeneratorTest {
     )(Shrink.shrinkTuple5[Int, Int, Int, Int, Long].suchThat(
       e => e._1 >= MinSide &&
           e._2 >= MinSide &&
-          e._3 >= 0 && e._3 <= e._1 &&
-          e._4 >= 0 && e._4 <= e._2))
+          e._3 >= 0 && e._3 < e._1 &&
+          e._4 >= 0 && e._4 < e._2))
 }

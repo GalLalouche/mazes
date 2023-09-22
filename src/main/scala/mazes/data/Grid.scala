@@ -63,7 +63,7 @@ case class Grid[A] private(
       for
         d <- Direction.values.toVector
         n <- go(d)
-        if !isLinked(d)
+        if !isLinked(d) && !n.isLinked(d)
         if n.isOrthogonal(d)
         tunnelEnd <- n.go(d)
       yield tunnelEnd
@@ -81,11 +81,14 @@ case class Grid[A] private(
       d match
         case Direction.North => go(d).flatMap(_.go(d)).as(Link(x, y, LinkDirection.Up))
         case Direction.East => go(d).flatMap(_.go(d)).as(Link(x, y, LinkDirection.Right))
-        case Direction.West | Direction.South => go(d).flatMap(_.go(d)).flatMap(_.canonicalLink(d.opposite))
+        case Direction.West | Direction.South =>
+          go(d).flatMap(_.go(d)).flatMap(_.canonicalTunnel(d.opposite))
 
     def isLinked(d: Direction): Boolean = canonicalLink(d).exists(overLinks)
     def isTunneled(d: Direction): Boolean = canonicalTunnel(d).exists(underLinks)
     def isLinkedOrTunneled(d: Direction): Boolean = isLinked(d) || isTunneled(d)
+    def linkedOrTunneledNeighborUnsafe(d: Direction): Cell =
+      if isLinked(d) then goUnsafe(d) else goUnsafe(d).ensuring(isTunneled(d)).goUnsafe(d)
     def link(d: Direction): Option[Grid[A]] =
       canonicalLink(d).map(l => Grid.this.copy(overLinks = overLinks + l))
     def linkUnsafe(d: Direction): Grid[A] =
